@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2017 MINDORKS NEXTGEN PRIVATE LIMITED
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.mindorks.com/license/apache-v2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
 
 package com.rajeevjaiswal.mvp.ui.main;
 
@@ -41,7 +27,7 @@ import io.reactivex.schedulers.Schedulers;
 
 
 /**
- * Created by janisharali on 27/01/17.
+ * Created by rajeev on 16/12/17.
  */
 
 public class MainPresenter<V extends MainMvpView> extends BasePresenter<V> implements MainMvpPresenter<V> {
@@ -58,9 +44,8 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V> imple
 
 
     @Override
-    public void fetchCities(final int limit, final int offset) {
+    public void fetchCities() {
 
-        Log.d("fetch","called" + limit +"---"+ offset);
         RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
@@ -69,16 +54,17 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V> imple
             }
         });
 
-            paginator
+           /* paginator
                 .onBackpressureDrop()
                 .concatMap(new Function<Integer, Publisher<List<City>>>() {
                     @Override
                     public Publisher<List<City>> apply(@NonNull Integer page) throws Exception {
                         Log.d("publisher","yes");
                         getMvpView().showLazyLoading();
-                        return dataFromNetworkOrCache(page).toFlowable(BackpressureStrategy.DROP);
+                        return dataFromNetworkOrCache(pageNumber).toFlowable(BackpressureStrategy.DROP);
                     }
-                })
+                })*/
+                  dataFromNetworkOrCache(pageNumber)
                     .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         new Consumer<List<City>>() {
@@ -93,29 +79,18 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V> imple
                         });
 //        getCompositeDisposable().add(disposable);
 
-        paginator.onNext(pageNumber);
+//        paginator.onNext(pageNumber);
 
-        /*getmDataManager()
-                .getCities(limit,offset)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<CityResponse>() {
-                    @Override
-                    public void accept(CityResponse cityList) throws Exception {
-                        if (cityList != null) {
-                            getMvpView().updateCity(cityList.getCities());
-                        }
-                    }
-                });*/
+
     }
 
     private Observable<List<City>> dataFromNetworkOrCache(final int page) {
 
-        Log.d("called","dataFlow");
+//        Log.d("called","dataFlow");
         return getmDataManager().getCities(limit,page*10).flatMap(new Function<CityResponse, ObservableSource<List<City>>>() {
             @Override
             public ObservableSource<List<City>> apply(CityResponse cityResponse) throws Exception {
-                Log.d("response","called" + cityResponse.getCities().toString());
+//                Log.d("response","called" + cityResponse.getCities().toString());
                 getmDataManager().saveCityList(cityResponse.getCities());
                 return Observable.fromArray(cityResponse.getCities());
             }
@@ -131,8 +106,10 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V> imple
     }
 
     @Override
-    public void onLoadNextPage() {
-        pageNumber++;
-        paginator.onNext(pageNumber);
+    public void onLoadNextPage(int page) {
+//        Log.d("page","next");
+        pageNumber = page;
+//        paginator.onNext(pageNumber);
+        fetchCities();
     }
 }

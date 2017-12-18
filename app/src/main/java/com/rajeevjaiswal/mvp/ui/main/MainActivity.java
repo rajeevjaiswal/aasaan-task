@@ -7,10 +7,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.rajeevjaiswal.mvp.R;
 import com.rajeevjaiswal.mvp.data.db.model.City;
 import com.rajeevjaiswal.mvp.ui.base.BaseActivity;
+import com.rajeevjaiswal.mvp.utils.EndlessRecyclerViewScrollListener;
 
 import java.util.List;
 
@@ -39,8 +41,6 @@ public class MainActivity extends BaseActivity implements MainMvpView,CityAdapte
     @BindView(R.id.city_recycler_view)
     RecyclerView mRecyclerView;
 
-    private int offset = 0;
-    private int limit = 10;
     private boolean loading = false;
     private final int VISIBLE_THRESHOLD = 1;
     private int lastVisibleItem, totalItemCount;
@@ -68,29 +68,19 @@ public class MainActivity extends BaseActivity implements MainMvpView,CityAdapte
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mCityAdapter);
         setUpLoadMoreListener();
-        mPresenter.fetchCities(limit,offset);
+        mPresenter.fetchCities();
     }
 
     /**
      * setting listener to get callback for load more
      */
     private void setUpLoadMoreListener() {
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(mLayoutManager) {
             @Override
-            public void onScrolled(RecyclerView recyclerView,
-                                   int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                totalItemCount = mLayoutManager.getItemCount();
-                lastVisibleItem = mLayoutManager
-                        .findLastVisibleItemPosition();
-                if (!loading
-                        && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
-
-                    loading = true;
-                    mPresenter.onLoadNextPage();
-                }
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                    mPresenter.onLoadNextPage(page);
             }
+
         });
     }
     @Override
@@ -112,8 +102,9 @@ public class MainActivity extends BaseActivity implements MainMvpView,CityAdapte
 
 
     @Override
-    public void onCityClicked(int position) {
+    public void onCityClicked(String name) {
 
+        Toast.makeText(this, "Selection is - " + name, Toast.LENGTH_SHORT).show();
     }
 
     @Override

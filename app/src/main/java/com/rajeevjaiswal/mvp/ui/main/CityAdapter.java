@@ -79,7 +79,7 @@ public class CityAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public interface Callback {
-        void onCityClicked(int position);
+        void onCityClicked(String name);
     }
 
     public class ViewHolder extends BaseViewHolder {
@@ -117,7 +117,7 @@ public class CityAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 @Override
                 public void onClick(View v) {
                     if (mCallback != null)
-                        mCallback.onCityClicked(position);
+                        mCallback.onCityClicked(mCityList.get(position).getCityName());
                 }
 
             });

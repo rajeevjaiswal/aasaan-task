@@ -16,15 +16,6 @@
         app:titleTextColor="@color/white" />
 
 
-    <EditText
-        android:id="@+id/edt_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Search City"
-        android:textAlignment="center"
-        />
-
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/city_recycler_view"
